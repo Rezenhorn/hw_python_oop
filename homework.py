@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List, Type
 
 
 @dataclass
@@ -61,24 +61,24 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
-    FACTOR_SPEED: float = 18
-    SUBTR_SPEED: float = 20
+    FACTOR: float = 18
+    SUBTRAHEND: float = 20
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return ((self.FACTOR_SPEED
+        return ((self.FACTOR
                 * self.get_mean_speed()
-                - self.SUBTR_SPEED)
+                - self.SUBTRAHEND)
                 * self.weight
                 / self.M_IN_KM
                 * self.duration
-                * super().MIN_IN_HOUR)
+                * self.MIN_IN_HOUR)
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    FACTOR_WEIGHT_1: float = 0.035
-    FACTOR_WEIGHT_2: float = 0.029
+    FACTOR_1: float = 0.035
+    FACTOR_2: float = 0.029
 
     def __init__(self,
                  action: int,
@@ -91,14 +91,14 @@ class SportsWalking(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return ((self.FACTOR_WEIGHT_1
+        return ((self.FACTOR_1
                 * self.weight
                 + (self.get_mean_speed()**2
                  // self.height)
-                * self.FACTOR_WEIGHT_2
+                * self.FACTOR_2
                 * self.weight)
                 * self.duration
-                * super().MIN_IN_HOUR)
+                * self.MIN_IN_HOUR)
 
 
 class Swimming(Training):
@@ -122,7 +122,7 @@ class Swimming(Training):
         """Получить среднюю скорость движения."""
         return (self.length_pool
                 * self.count_pool
-                / super().M_IN_KM
+                / self.M_IN_KM
                 / self.duration)
 
     def get_spent_calories(self) -> float:
@@ -135,7 +135,7 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    dict_training: dict = {
+    dict_training: Dict[str, Type[Training]] = {
         'SWM': Swimming,
         'RUN': Running,
         'WLK': SportsWalking
